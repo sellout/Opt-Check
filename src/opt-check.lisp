@@ -65,7 +65,7 @@
 
 (defvar *timing-context*)
 
-(defvar *optimization-style* 'on)
+(defvar *optimization-style* :on)
 
 (defmacro with-perf-context ((&optional identifier) &body body)
   `(let ((*timing-context* (list nil nil)))
