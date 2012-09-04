@@ -1,3 +1,8 @@
+(defpackage opt-check.system
+  (:use #:cl #:asdf))
+
+(in-package #:opt-check.system)
+
 (defsystem opt-check
   :description "Keep track of optimizations and easily benchmark them."
   :long-description "see README.md"
