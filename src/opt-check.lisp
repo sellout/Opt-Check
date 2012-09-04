@@ -65,9 +65,15 @@
 
 (defvar *timing-context*)
 
-(defvar *optimization-style* :on)
+(defvar *optimization-style* :on
+  "This can be :ON, :OFF, or :COMPARE. :ON means that the optimized
+  (second) form in CHECK-OPT is used, :OFF means the unoptimized (first) form
+   is used, and :COMPARE means that both are used & stats are collected.")
 
 (defmacro with-perf-context ((&optional identifier) &body body)
+  "This allows the usual CHECK-OPT to be deconstructed a bit. The body is
+   expected to have one instance each of BASE-PERF and COMP-PERF which contain
+   the forms to be timed."
   `(let ((*timing-context* (list nil nil)))
      (multiple-value-prog1 (progn ,@body)
        (push (append (list nil)
@@ -82,11 +88,13 @@
        (push *timing-context* *time-statistics*))))
 
 (defmacro base-perf (form &optional label)
+  "Contains the form to be timed and treated as the baseline."
   `(let ((results (gather-time (or ,label ',form) (lambda () ,form))))
      (setf (car *timing-context*) results)
      (values-list (car results))))
 
 (defmacro comp-perf (form &optional label)
+  "Contains the optimized form to be timed."
   `(let ((results (gather-time (or ,label ',form) (lambda () ,form))))
      (setf (cadr *timing-context*) results)
      (values-list (car results))))
@@ -101,8 +109,26 @@
    and optimized versions. It collects timing info on each, and it then ensures
    that the results match before returning them.
 
-   The other way to use this is as a benchmarking system. Lets say, for example,
-   that you have a new hash-table implementation, "
+   The other way to use this is as a benchmarking suite, similar to a test
+   suite. Used in the way that executes both forms, mentioned above, stats are
+   collected and REPORT can print them out all nice.
+
+   The keyword options only apply in the case that both forms are being
+   executed.
+
+   If WARNP is non-NIL, then TEST is the test to use to compare the results
+  (and warn if they don't pass). It can be either a function, which is then
+   applied to each of the values returned, or it can be a list of functions
+   with each used to test one of the values.
+
+   IDENTIFIER is the name to use for these results in the report.
+
+   ITERATIONS is how many times to run the forms, in order to get more
+   consistent results.
+
+   NEVER-COMPARE-P is used to indicate that the forms have side-effects that
+   you'd rather not duplicate, and it makes sure that both forms are never
+   executed in the same run."
   #-opt-check-enabled (declare (ignore baseline test warnp identifier iterations
                                        never-compare-p))
   #-opt-check-enabled comparison
