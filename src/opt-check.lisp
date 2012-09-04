@@ -163,7 +163,7 @@
                           base-results comp-results)))
               (values-list base-results)))))))
 
-(defun report (stream &key group-by)
+(defun report (&key (stream t) group-by)
   "Display collected timing info. STREAM behaves as it does for FORMAT."
   (format stream "~&|--------time--------|  bytes  page faults   swaps  form~%~
                   real  user  system  gc         minor  major")
