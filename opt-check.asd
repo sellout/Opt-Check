@@ -22,4 +22,4 @@
 (defsystem opt-check.tests
   :depends-on (opt-check fiveam)
   :pathname "tests/"
-  :components ())
+  :components ((:file "tests")))
